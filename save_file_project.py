@@ -40,17 +40,28 @@ async def config_list_empresas(list_empresas, arquivos):
     arquivos_correspondentes = await asyncio.gather(*tasks)
 
     for name, arquivo in zip(list_empresas, arquivos_correspondentes):
-        for arquivo in arquivos_correspondentes:
-            caminho = f"./inss-andamento/{arquivo}"
-            
-            try:
-                arquivos = os.listdir(caminho)
-                arquivos_encontrados = [os.path.join(caminho, f)  for f in arquivos]
+        caminho = f"./inss-andamento/{arquivo}"
+        try:
+            arquivos = os.listdir(caminho)
+            arquivos_encontrados = [os.path.join(caminho, f)  for f in arquivos]
 
-                if arquivos_encontrados:
-                    result.append({"name": name, "files": arquivos_encontrados})
-            except:
-                continue
+            if arquivos_encontrados:
+                result.append({"name": name, "files": arquivos_encontrados})
+        except:
+            continue
+        
+        
+        # for arquivo in arquivos_correspondentes:
+        #     caminho = f"./inss-andamento/{arquivo}"
+            
+        #     try:
+        #         arquivos = os.listdir(caminho)
+        #         arquivos_encontrados = [os.path.join(caminho, f)  for f in arquivos]
+
+        #         if arquivos_encontrados:
+        #             result.append({"name": name, "files": arquivos_encontrados})
+        #     except:
+        #         continue
           
     return result
 
@@ -90,12 +101,10 @@ async def register_odoo(list_empresas):
                     time.sleep(1)
                 
                     input_file = page.locator("//html/body/div[1]/div/div/div[2]/div/div[2]/div/div[1]/div/div/input") 
-
-                    arquivos_validos = [file for file in empresa['files'] if os.path.isfile(file)]
                     
-                    if arquivos_validos:
-                        await input_file.set_input_files(arquivos_validos)
-                        time.sleep(1)
+                    for file in empresa['files']:
+                        print("Gravando arquivo:", file)
+                        await input_file.set_input_files(file, timeout=30000)
                         
                     time.sleep(1)
                     await page.locator("//html/body/div[1]/div/div/div[1]/div/div[1]/div[2]/ol/li[3]/a").click()
